@@ -38,9 +38,15 @@ jobs:
         run: docker compose build backend
 
       - name: Verify Docker Build (Frontend)
+        env:
+          REACT_APP_BACKEND_URL: https://tradeflow-backend.jollydune-fb1d1349.centralindia.azurecontainerapps.io
+          REACT_APP_DASHBOARD_URL: https://tradeflow-dashboard.jollydune-fb1d1349.centralindia.azurecontainerapps.io
         run: docker compose build frontend
 
       - name: Verify Docker Build (Dashboard)
+        env:
+          REACT_APP_BACKEND_URL: https://tradeflow-backend.jollydune-fb1d1349.centralindia.azurecontainerapps.io
+          REACT_APP_FRONTEND_URL: https://tradeflow-frontend.jollydune-fb1d1349.centralindia.azurecontainerapps.io
         run: docker compose build dashboard
 
       - name: Log in to DockerHub
