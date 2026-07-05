@@ -25,6 +25,7 @@ const Holdings = () => {
         borderColor: "white",
         borderRadius: 10,
         borderSkipped: "bottom",
+        barThickness: 20,
       },
     ]
   }

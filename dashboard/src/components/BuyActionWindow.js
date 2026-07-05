@@ -7,9 +7,9 @@ import GeneralContext from "./GeneralContext";
 
 import "./BuyActionWindow.css";
 
-const BuyActionWindow = ({ uid, action }) => {
+const BuyActionWindow = ({ uid, action, price }) => {
   const [stockQuantity, setStockQuantity] = useState(1);
-  const [stockPrice, setStockPrice] = useState(0.0);
+  const [stockPrice, setStockPrice] = useState(price || 0.0);
 
   const { closeBuyWindow } = useContext(GeneralContext);
 
@@ -51,6 +51,7 @@ const BuyActionWindow = ({ uid, action }) => {
               step="0.05"
               onChange={(e) => setStockPrice(e.target.value)}
               value={stockPrice}
+              disabled
             />
           </fieldset>
         </div>

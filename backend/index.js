@@ -10,7 +10,9 @@ const { HoldingModel } = require("./Models/HoldingModels");
 const { PositionModel } = require("./Models/PositionModels");
 const { OrderModel } = require("./Models/OrderModels");
 const authRoute = require("./Routes/AuthRoute");
+const marketRoute = require("./Routes/MarketRoute");
 const { verifyToken } = require("./Middlewares/AuthMiddleware");
+const axios = require("axios");
 
 const PORT = process.env.PORT || 3002;
 const uri = process.env.MONGO_URL;
@@ -28,6 +30,7 @@ app.use(cookieParser());
 app.use(bodyparser.json());
 
 app.use("/auth", authRoute);
+app.use("/market", marketRoute);
 
 // app.get("/addholdings", async (req, res) => {
 //   let tempHolding = [
@@ -215,9 +218,24 @@ app.get("/allorders", verifyToken, async (req, res) => {
 
 app.post("/newOrder", verifyToken, async (req, res) => {
   try {
-    let { name, qty, price, mode } = req.body;
+    let { name, qty, mode } = req.body;
     qty = Number(qty);
-    price = Number(price);
+
+    let price = 0;
+    try {
+      const apiKey = process.env.FINNHUB_API_KEY;
+      const response = await axios.get(
+        `https://finnhub.io/api/v1/quote?symbol=${name}&token=${apiKey}`
+      );
+      if (response.data && response.data.c !== 0) {
+        price = response.data.c;
+      } else {
+        return res.status(400).json({ error: "Invalid symbol or market data unavailable" });
+      }
+    } catch (err) {
+      console.error("Failed to fetch live price for order:", err.message);
+      return res.status(500).json({ error: "Failed to verify market price" });
+    }
 
     if (mode === "SELL") {
       let holding = await HoldingModel.findOne({ name: name });
@@ -266,8 +284,11 @@ app.post("/newOrder", verifyToken, async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log("App started");
-  mongoose.connect(uri);
-  console.log("DB connected");
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log("App started");
+    mongoose.connect(uri).then(() => console.log("DB connected")).catch(console.error);
+  });
+}
+
+module.exports = app;

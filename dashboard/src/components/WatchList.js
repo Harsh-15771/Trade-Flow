@@ -1,4 +1,5 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
+import axios from "axios";
 
 import GeneralContext from "./GeneralContext";
 
@@ -14,16 +15,54 @@ import {
 import { watchlist } from "../data/data";
 import { DoughnutChart } from "./DoughnutChart";
 
-const labels = watchlist.map((subArray) => subArray["name"]);
-
 const WatchList = () => {
+  const [liveWatchlist, setLiveWatchlist] = useState(watchlist);
+
+  useEffect(() => {
+    const fetchLivePrices = async () => {
+      try {
+        const promises = watchlist.map(stock => 
+          axios.get(`${process.env.REACT_APP_BACKEND_URL}/market/quote/${stock.name}`, { withCredentials: true })
+        );
+        const responses = await Promise.allSettled(promises);
+        
+        const updatedWatchlist = watchlist.map((stock, i) => {
+          if (responses[i].status === "fulfilled" && responses[i].value.data) {
+            const data = responses[i].value.data;
+            return {
+              ...stock,
+              price: data.c,
+              percent: data.dp ? `${data.dp > 0 ? '+' : ''}${data.dp.toFixed(2)}%` : "0.00%",
+              isDown: data.dp < 0
+            };
+          }
+          return stock;
+        });
+        
+        setLiveWatchlist(updatedWatchlist);
+      } catch (err) {
+        console.error("Failed to fetch live prices:", err);
+      }
+    };
+    
+    // Fetch immediately on mount
+    fetchLivePrices();
+
+    // Set up auto-refresh every 30 seconds (30000 ms)
+    const intervalId = setInterval(fetchLivePrices, 30000);
+
+    // Clean up interval on unmount
+    return () => clearInterval(intervalId);
+  }, []);
+
+  const labels = liveWatchlist.map((subArray) => subArray["name"]);
 
   const data = {
     labels,
     datasets: [
       {
         label: "Price",
-        data: watchlist.map((stock) => stock.price),
+        data: liveWatchlist.map((stock) => stock.price),
         backgroundColor: [
           "rgba(255,99,132,0.5)",
           "rgba(54,162,235,0.5)",
@@ -53,14 +92,14 @@ const WatchList = () => {
           type="text"
           name="search"
           id="search"
-          placeholder="Search eg:infy, bse, nifty fut weekly, gold mcx"
+          placeholder="Search eg: AAPL, SPY, QQQ, NASDAQ"
           className="search"
         />
-        <span className="counts"> {watchlist.length} / 50</span>
+        <span className="counts"> {liveWatchlist.length} / 50</span>
       </div>
 
       <ul className="list">
-        {watchlist.map((stock, index) => {
+        {liveWatchlist.map((stock, index) => {
           return <WatchListItem stock={stock} key={index} />;
         })}
       </ul>
@@ -96,20 +135,20 @@ const WatchListItem = ({ stock }) => {
           <span className="price">{stock.price}</span>
         </div>
       </div>
-      {showWatchlistActions && <WatchListActions uid={stock.name} />}
+      {showWatchlistActions && <WatchListActions stock={stock} />}
     </li>
   );
 };
 
-const WatchListActions = ({ uid }) => {
+const WatchListActions = ({ stock }) => {
   const generalContext = useContext(GeneralContext);
 
   const handleBuyClick = () => {
-    generalContext.openBuyWindow(uid, "BUY");
+    generalContext.openBuyWindow(stock.name, "BUY", stock.price);
   };
 
   const handleSellClick = () => {
-    generalContext.openBuyWindow(uid, "SELL");
+    generalContext.openBuyWindow(stock.name, "SELL", stock.price);
   };
 
   return (

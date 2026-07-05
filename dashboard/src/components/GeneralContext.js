@@ -3,19 +3,21 @@ import React, { useState } from "react";
 import BuyActionWindow from "./BuyActionWindow";
 
 const GeneralContext = React.createContext({
-  openBuyWindow: (uid, mode) => {},
+  openBuyWindow: (uid, mode, price) => {},
   closeBuyWindow: () => {},
 });
 
 export const GeneralContextProvider = (props) => {
   const [isBuyWindowOpen, setIsBuyWindowOpen] = useState(false);
   const [selectedStockUID, setSelectedStockUID] = useState("");
-  const [actionFrom, setActionFrom] = useState("BUY");
+  const [actionMode, setActionMode] = useState("BUY");
+  const [selectedStockPrice, setSelectedStockPrice] = useState(0);
 
-  const handleOpenBuyWindow = (uid, mode = "BUY") => {
+  const handleOpenBuyWindow = (uid, mode, price) => {
     setIsBuyWindowOpen(true);
     setSelectedStockUID(uid);
-    setActionFrom(mode);
+    setActionMode(mode);
+    setSelectedStockPrice(price || 0);
   };
 
   const handleCloseBuyWindow = () => {
@@ -31,7 +33,7 @@ export const GeneralContextProvider = (props) => {
       }}
     >
       {props.children}
-      {isBuyWindowOpen && <BuyActionWindow uid={selectedStockUID} action={actionFrom} />}
+      {isBuyWindowOpen && <BuyActionWindow uid={selectedStockUID} action={actionMode} price={selectedStockPrice} />}
     </GeneralContext.Provider>
   );
 };
