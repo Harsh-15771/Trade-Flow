@@ -724,6 +724,10 @@ hr {
   display: none;
 }
 
+.actions > span {
+  display: flex;
+  align-items: center;
+}
 .actions span button {
   width: 40px;
   height: 30px;
@@ -731,6 +735,9 @@ hr {
   text-align: center;
   margin-right: 8px;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .buy {
