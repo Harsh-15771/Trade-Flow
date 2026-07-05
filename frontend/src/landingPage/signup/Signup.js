@@ -11,7 +11,7 @@ function Signup() {
 
   useEffect(() => {
     if (!loading && user) {
-      window.location.href = "http://localhost:3001/";
+      window.location.href = process.env.REACT_APP_DASHBOARD_URL || "http://localhost:3001/";
     }
   }, [user, loading]);
 
@@ -19,11 +19,11 @@ function Signup() {
     e.preventDefault();
     try {
       await axios.post(
-        "http://localhost:3002/auth/signup",
+        `${process.env.REACT_APP_BACKEND_URL || "http://localhost:3002"}/auth/signup`,
         { name, email, password },
         { withCredentials: true }
       );
-      window.location.href = "http://localhost:3001/";
+      window.location.href = process.env.REACT_APP_DASHBOARD_URL || "http://localhost:3001/";
     } catch (err) {
       setError(err.response?.data?.error || "Failed to signup");
     }

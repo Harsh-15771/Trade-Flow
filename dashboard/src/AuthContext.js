@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const verifyUser = async () => {
       try {
-        const { data } = await axios.get("http://localhost:3002/auth/verify", {
+        const { data } = await axios.get(`${process.env.REACT_APP_BACKEND_URL || "http://localhost:3002"}/auth/verify`, {
           withCredentials: true,
         });
         setUser(data.user);

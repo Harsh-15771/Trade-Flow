@@ -10,8 +10,8 @@ const Menu = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post("http://localhost:3002/auth/logout", {}, { withCredentials: true });
-      window.location.href = "http://localhost:3000/";
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL || "http://localhost:3002"}/auth/logout`, {}, { withCredentials: true });
+      window.location.href = process.env.REACT_APP_FRONTEND_URL || "http://localhost:3000/";
     } catch (error) {
       console.error("Logout failed:", error);
     }
