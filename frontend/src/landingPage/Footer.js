@@ -6,7 +6,7 @@ function Footer() {
       <div className="container border-top mt-5">
         <div className="row mt-5">
           <div className="col">
-            <img src="media/images/logo.svg" style={{ width: "50%" }} />
+            <img src="media/images/tradeflow_logo.png" alt="Logo" style={{ width: "50%" }} />
             <p className="mt-3">
               &copy; 2010 - 2025, TradeFlow Broking Ltd. All rights reserved
             </p>

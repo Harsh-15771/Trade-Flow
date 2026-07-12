@@ -12,9 +12,9 @@ function Navbar() {
       <div class="container p-2">
         <Link class="navbar-brand" to="/">
           <img
-            src="media/images/logo.svg"
+            src="media/images/tradeflow_logo.png"
             alt="Logo"
-            style={{ width: "25%" }}
+            style={{ width: "30%" }}
           />
         </Link>
         <button
